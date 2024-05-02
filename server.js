@@ -1,9 +1,9 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import { randomUUID } from 'crypto';
 const clients = new Map(); // has to be a Map instead of {} due to non-string keys
-const wss = new WebSocketServer({ port: 3000 }); // initiate a new server that listens on port 8080
+const wss = new WebSocketServer({ port: 3030 }); 
+     
 
-// set up event handlers and do other things upon a client connecting to the server
 wss.on('connection', (ws) => {
     // create an id to track the client
     const id = randomUUID();
@@ -12,7 +12,6 @@ wss.on('connection', (ws) => {
 
     // send a message to all connected clients upon receiving a message from one of the connected clients
     ws.on('message', (data) => {
-        console.log(`sensor: ${data}`);
         serverBroadcast(`${data}`);
     });
 
@@ -21,17 +20,13 @@ wss.on('connection', (ws) => {
         console.log(`connection (id = ${clients.get(ws)}) closed`);
         clients.delete(ws);
     });
-
+    ws.on('error', (error) => {
+        console.error('WebSocket error:', error);
+    });
+    // send the id back to the newly connected client
 
 });
 
-// send a message to all the connected clients about how many of them there are every 15 seconds
-setInterval(() => {
-    console.log(`Number of connected clients: ${clients.size}`);
-    serverBroadcast(`Number of connected clients: ${clients.size}`);
-}, 15000);
-
-// function for sending a message to every connected client
 function serverBroadcast(message) {
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
@@ -40,4 +35,4 @@ function serverBroadcast(message) {
     });
 }
 
-console.log('The server is running and waiting for connections:3000');
+console.log('The server is running and waiting for connections: 3030');
